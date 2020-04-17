@@ -58,12 +58,29 @@ app.post("/repositories", (request, response) => {
 
 });
 
-app.put("/repositories/:id", (request, response) => {
-  // TODO
+app.put("/repositories/:id", validateProjectId, (request, response) => {
+  
+  const {id} = request.params;
+  const {url, title, techs } = request.body;
+
+  const repIndex = repositories.findIndex(reposit => reposit.id=== id);
+
+  const reposit = { id, url, title, techs, }
+
+  repositories[repIndex]= reposit;
+
+  return response.json(reposit);
+
 });
 
-app.delete("/repositories/:id", (request, response) => {
-  // TODO
+app.delete("/repositories/:id", validateProjectId, (request, response) => {
+
+  const {id}=request.params;
+ 
+  const repIndex = repositories.findIndex(reposit => reposit.id === id);
+
+  repositories.splice(repIndex,1)
+
 });
 
 app.post("/repositories/:id/like", (request, response) => {
