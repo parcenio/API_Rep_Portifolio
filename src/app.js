@@ -32,25 +32,20 @@ function validateProjectId(request, response, next){
 
 }
 
+
 app.use(logRequests);
 
 
 app.get("/repositories", (request, response) => {
   
-  const {title} = request.query;
-
-  const results = title
-    ? repositories.filter(project => repositories.title.includes(title))
-    : repositories;
-
-  return response.json(results);
+  return response.json(repositories);
 
 });
 
 app.post("/repositories", (request, response) => {
   
   const {url,title,techs,likes=0} = request.body;
-  const reposit = {id: uuid(),url, title, techs,likes};
+  const reposit = {id: uuid(),url, title, techs,likes:0};
   repositories.push(reposit);
 
   return response.json(reposit);
@@ -65,7 +60,7 @@ app.put("/repositories/:id", validateProjectId, (request, response) => {
 
   const repIndex = repositories.findIndex(reposit => reposit.id=== id);
 
-  const reposit = { id, url, title, techs, }
+  const reposit = { id, url, title, techs, likes:repositories[repIndex].likes,}
 
   repositories[repIndex]= reposit;
 
@@ -81,10 +76,24 @@ app.delete("/repositories/:id", validateProjectId, (request, response) => {
 
   repositories.splice(repIndex,1)
 
+  return response.status(204).send();
+
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  
+  const {id} = request.params;
+
+  const repIndex = repositories.findIndex(reposit => reposit.id=== id);
+
+  if(!isUuid(id)) {
+    return response.status(400).json({error: "Invalid reposit ID."});
+  }
+
+  repositories[repIndex].likes++;
+  
+  return response.json(repositories[repIndex]);
+
 });
 
 module.exports = app;
